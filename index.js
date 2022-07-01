@@ -43,11 +43,19 @@ app.post('/end-task/:id', async (req, res) => {
   try {
     const taskId = req.params.id;
     const endTime = moment().format();
+
     const endTask = await pool.query(
       'UPDATE task SET end_time = $1 WHERE task_id=$2 RETURNING *',
       [endTime, taskId]
     );
-    res.status(200).send(endTask.rows[0]);
+
+    //Task duration
+
+    const taskDuration = await pool.query(
+      'UPDATE task SET task_duration = AGE($1,start_time) WHERE task_id=$2 RETURNING *',
+      [endTask.rows[0].end_time, taskId]
+    );
+    res.status(200).send(taskDuration.rows[0]);
   } catch (error) {
     console.error(error.message);
   }
