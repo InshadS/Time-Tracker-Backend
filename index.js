@@ -53,6 +53,22 @@ app.post('/end-task/:id', async (req, res) => {
   }
 });
 
+//Update task
+
+app.post('/update-task/:id', async (req, res) => {
+  try {
+    const taskId = req.params.id;
+    const taskName = req.body.name;
+    const updateTask = await pool.query(
+      'UPDATE task SET task_name = $1 WHERE task_id = $2 RETURNING *',
+      [taskName, taskId]
+    );
+    res.status(200).send(`task updated: ${updateTask.rows[0].task_name}`);
+  } catch (error) {
+    console.error(error.message);
+  }
+});
+
 //Delete a task
 
 app.post('/delete-task/:id', async (req, res) => {
