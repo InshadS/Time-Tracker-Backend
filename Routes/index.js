@@ -9,7 +9,7 @@ router.post('/add-task', async (req, res) => {
     const taskName = req.body.name;
 
     const addTask = await pool.query(
-      'INSERT INTO task (task_name) VALUES($1) RETURNING *',
+      'INSERT INTO task (name) VALUES($1) RETURNING *',
       [taskName]
     );
 
@@ -27,7 +27,7 @@ router.post('/start-task/:id', async (req, res) => {
     const startTime = moment().format();
 
     const startTask = await pool.query(
-      'UPDATE task SET start_time = $1 WHERE task_id=$2 RETURNING *',
+      'UPDATE task SET start_time = $1 WHERE id=$2 RETURNING *',
       [startTime, taskId]
     );
 
@@ -45,14 +45,14 @@ router.post('/end-task/:id', async (req, res) => {
     const endTime = moment().format();
 
     const endTask = await pool.query(
-      'UPDATE task SET end_time = $1 WHERE task_id=$2 RETURNING *',
+      'UPDATE task SET end_time = $1 WHERE id=$2 RETURNING *',
       [endTime, taskId]
     );
 
     //Task duration
 
     const taskDuration = await pool.query(
-      'UPDATE task SET task_duration = AGE($1,start_time) WHERE task_id=$2 RETURNING *',
+      'UPDATE task SET task_duration = AGE($1,start_time) WHERE id=$2 RETURNING *',
       [endTask.rows[0].end_time, taskId]
     );
 
@@ -70,11 +70,11 @@ router.post('/update-task/:id', async (req, res) => {
     const taskName = req.body.name;
 
     const updateTask = await pool.query(
-      'UPDATE task SET task_name = $1 WHERE task_id = $2 RETURNING *',
+      'UPDATE task SET name = $1 WHERE id = $2 RETURNING *',
       [taskName, taskId]
     );
 
-    res.status(200).send(`task updated: ${updateTask.rows[0].task_name}`);
+    res.status(200).send(`task updated: ${updateTask.rows[0].name}`);
   } catch (error) {
     console.error(error.message);
   }
@@ -87,11 +87,11 @@ router.post('/delete-task/:id', async (req, res) => {
     const taskId = req.params.id;
 
     const deleteTask = await pool.query(
-      'DELETE FROM task WHERE task_id=$1 RETURNING *',
+      'DELETE FROM task WHERE id=$1 RETURNING *',
       [taskId]
     );
 
-    res.status(200).send(`task:${deleteTask.rows[0].task_name} is deleted`);
+    res.status(200).send(`task:${deleteTask.rows[0].name} is deleted`);
   } catch (error) {
     console.error(error.message);
   }
